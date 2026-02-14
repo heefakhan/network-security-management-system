@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Runbook - Campus Network Guardian</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background: #0a0c10;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            background: #0f172a;
+            padding: 15px 30px;
+            border-bottom: 2px solid #2563eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-brand .icon {
+            font-size: 28px;
+        }
+        
+        .nav-brand .title {
+            color: #60a5fa;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+        
+        .nav-links a:hover {
+            background: #1e293b;
+            color: #60a5fa;
+        }
+        
+        .nav-links a.active {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Section */
+        .runbook-header {
+            background: #111827;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid #1e293b;
+            text-align: center;
+        }
+        
+        .runbook-header h1 {
+            color: #60a5fa;
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+        
+        .runbook-header p {
+            color: #94a3b8;
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Quick Status */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .status-card {
+            background: #111827;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            text-align: center;
+        }
+        
+        .status-card .status-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .status-card .status-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 5px;
+        }
+        
+        .status-card .status-label {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        /* Section Titles */
+        .section-title {
+            color: #60a5fa;
+            font-size: 28px;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2563eb;
+        }
+        
+        /* Setup Steps */
+        .steps-container {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .step-card {
+            background: #111827;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            overflow: hidden;
+        }
+        
+        .step-header {
+            background: #1e293b;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .step-title {
+            color: #60a5fa;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .step-content {
+            padding: 20px;
+        }
+        
+        .command-block {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            color: #10b981;
+            margin: 15px 0;
+            border: 1px solid #1e293b;
+            overflow-x: auto;
+        }
+        
+        .note-box {
+            background: rgba(37,99,235,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #2563eb;
+            margin: 15px 0;
+            color: #94a3b8;
+        }
+        
+        .note-box strong {
+            color: #60a5fa;
+        }
+        
+        /* Daily Operations */
+        .ops-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .ops-card {
+            background: #111827;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #1e293b;
+        }
+        
+        .ops-card h3 {
+            color: #60a5fa;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ops-list {
+            list-style: none;
+        }
+        
+        .ops-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #1e293b;
+            color: #94a3b8;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .ops-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .ops-list li::before {
+            content: "→";
+            color: #2563eb;
+        }
+        
+        /* Troubleshooting */
+        .troubleshoot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .trouble-card {
+            background: #111827;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            overflow: hidden;
+        }
+        
+        .trouble-header {
+            background: #1e293b;
+            padding: 15px 20px;
+        }
+        
+        .trouble-header h3 {
+            color: #60a5fa;
+            font-size: 18px;
+        }
+        
+        .trouble-content {
+            padding: 20px;
+        }
+        
+        .symptom {
+            color: #ef4444;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .solution {
+            color: #10b981;
+            margin-top: 10px;
+        }
+        
+        .solution-step {
+            padding: 8px 0;
+            border-bottom: 1px dashed #1e293b;
+            color: #94a3b8;
+        }
+        
+        /* Backup Section */
+        .backup-section {
+            background: #111827;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 40px 0;
+            border: 1px solid #1e293b;
+        }
+        
+        .backup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .backup-item {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .backup-item h4 {
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+        
+        /* SLA Section */
+        .sla-section {
+            background: #111827;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 40px 0;
+            border: 1px solid #1e293b;
+        }
+        
+        .sla-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .sla-item {
+            text-align: center;
+            padding: 20px;
+            background: #1e293b;
+            border-radius: 8px;
+        }
+        
+        .sla-item .sla-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 5px;
+        }
+        
+        .sla-item .sla-label {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #111827;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 50px;
+            border: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .footer-info {
+            color: #94a3b8;
+        }
+        
+        .footer-info strong {
+            color: #60a5fa;
+        }
+        
+        .version-badge {
+            background: #1e293b;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #60a5fa;
+            border: 1px solid #2563eb;
+        }
+        
+        @media (max-width: 768px) {
+            .status-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .sla-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="nav-brand">
+            <span class="icon">🛡️</span>
+            <span class="title">Campus Network Guardian</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">🏠 Home</a>
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="playbook.html">📚 Playbook</a>
+            <a href="runbook.html" class="active">📘 Runbook</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="runbook-header">
+            <h1>📘 System Operations Runbook</h1>
+            <p>Complete guide for system setup, daily operations, troubleshooting, and maintenance procedures.</p>
+        </div>
+
+        <!-- Quick Status -->
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-icon">🚀</div>
+                <div class="status-value">3</div>
+                <div class="status-label">Setup Steps</div>
+            </div>
+            <div class="status-card">
+                <div class="status-icon">⚡</div>
+                <div class="status-value">6</div>
+                <div class="status-label">Daily Ops</div>
+            </div>
+            <div class="status-card">
+                <div class="status-icon">🔧</div>
+                <div class="status-value">5</div>
+                <div class="status-label">Troubleshoot</div>
+            </div>
+            <div class="status-card">
+                <div class="status-icon">📊</div>
+                <div class="status-value">99.9%</div>
+                <div class="status-label">Uptime</div>
+            </div>
+        </div>
+
+        <!-- System Startup -->
+        <h2 class="section-title">🚀 System Startup Guide</h2>
+        
+        <div class="steps-container">
+            <!-- Step 1 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Start Backend Server</div>
+                </div>
+                <div class="step-content">
+                    <div class="command-block">
+                        cd backend<br>
+                        python -m venv venv<br>
+                        venv\Scripts\activate<br>
+                        pip install fastapi uvicorn<br>
+                        uvicorn main:app --reload --port 8001
+                    </div>
+                    <div class="note-box">
+                        <strong>✅ Verify:</strong> Open http://localhost:8001/docs in browser<br>
+                        <strong>📌 Note:</strong> Keep this terminal window open
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Start Frontend</div>
+                </div>
+                <div class="step-content">
+                    <div class="command-block">
+                        # Open frontend/index.html in browser<br>
+                        # OR use Live Server in VS Code
+                    </div>
+                    <div class="note-box">
+                        <strong>✅ Verify:</strong> Main hub should display<br>
+                        <strong>📌 Note:</strong> Use Chrome/Edge for best results
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Verify System Health</div>
+                </div>
+                <div class="step-content">
+                    <div class="command-block">
+                        # Check API endpoints<br>
+                        curl http://localhost:8001/api/devices<br>
+                        curl http://localhost:8001/api/alerts<br>
+                        curl http://localhost:8001/api/stats
+                    </div>
+                    <div class="note-box">
+                        <strong>✅ Verify:</strong> All endpoints return JSON data<br>
+                        <strong>📌 Note:</strong> Dashboard should show devices
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Operations -->
+        <h2 class="section-title">📊 Daily Operations</h2>
+        
+        <div class="ops-grid">
+            <div class="ops-card">
+                <h3>🕐 Morning Checklist</h3>
+                <ul class="ops-list">
+                    <li>Check dashboard for overnight alerts</li>
+                    <li>Verify all devices are online</li>
+                    <li>Review threat levels</li>
+                    <li>Check system logs</li>
+                    <li>Verify backup status</li>
+                </ul>
+            </div>
+
+            <div class="ops-card">
+                <h3>📝 Monitoring Tasks</h3>
+                <ul class="ops-list">
+                    <li>Monitor traffic graphs (every 2 hours)</li>
+                    <li>Check for unusual patterns</li>
+                    <li>Verify alert resolutions</li>
+                    <li>Review blocked devices</li>
+                    <li>Update incident log</li>
+                </ul>
+            </div>
+
+            <div class="ops-card">
+                <h3>⚡ Incident Response</h3>
+                <ul class="ops-list">
+                    <li>Follow playbook procedures</li>
+                    <li>Block malicious devices</li>
+                    <li>Resolve false alerts</li>
+                    <li>Document incidents</li>
+                    <li>Escalate if needed</li>
+                </ul>
+            </div>
+
+            <div class="ops-card">
+                <h3>📋 End of Day</h3>
+                <ul class="ops-list">
+                    <li>Generate daily report</li>
+                    <li>Review unresolved alerts</li>
+                    <li>Plan next day tasks</li>
+                    <li>Verify backups</li>
+                    <li>Update documentation</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <h2 class="section-title">🔧 Troubleshooting Guide</h2>
+        
+        <div class="troubleshoot-grid">
+            <!-- Problem 1 -->
+            <div class="trouble-card">
+                <div class="trouble-header">
+                    <h3>❌ Backend Not Responding</h3>
+                </div>
+                <div class="trouble-content">
+                    <div class="symptom">Symptom: Dashboard shows "Backend not running"</div>
+                    <div class="solution-step">1. Check if backend terminal is open</div>
+                    <div class="solution-step">2. Verify port 8001 is free:</div>
+                    <div class="command-block">netstat -ano | findstr :8001</div>
+                    <div class="solution-step">3. Kill process if needed:</div>
+                    <div class="command-block">taskkill /PID [number] /F</div>
+                    <div class="solution-step">4. Restart backend:</div>
+                    <div class="command-block">uvicorn main:app --reload --port 8001</div>
+                </div>
+            </div>
+
+            <!-- Problem 2 -->
+            <div class="trouble-card">
+                <div class="trouble-header">
+                    <h3>📊 Graphs Not Showing</h3>
+                </div>
+                <div class="trouble-content">
+                    <div class="symptom">Symptom: Blank graphs or no data</div>
+                    <div class="solution-step">1. Click "GRAPH ON" button</div>
+                    <div class="solution-step">2. Check Chart.js CDN:</div>
+                    <div class="command-block">F12 → Network tab → chart.js loaded?</div>
+                    <div class="solution-step">3. Clear browser cache</div>
+                    <div class="solution-step">4. Refresh page (F5)</div>
+                </div>
+            </div>
+
+            <!-- Problem 3 -->
+            <div class="trouble-card">
+                <div class="trouble-header">
+                    <h3>🚫 Block/Unblock Failing</h3>
+                </div>
+                <div class="trouble-content">
+                    <div class="symptom">Symptom: Buttons not working</div>
+                    <div class="solution-step">1. Check backend connection</div>
+                    <div class="solution-step">2. Verify API endpoint:</div>
+                    <div class="command-block">curl http://localhost:8001/api/devices</div>
+                    <div class="solution-step">3. Check CORS in main.py</div>
+                    <div class="solution-step">4. Restart backend</div>
+                </div>
+            </div>
+
+            <!-- Problem 4 -->
+            <div class="trouble-card">
+                <div class="trouble-header">
+                    <h3>💾 Database Issues</h3>
+                </div>
+                <div class="trouble-content">
+                    <div class="symptom">Symptom: No data or stale data</div>
+                    <div class="solution-step">1. Check if network.db exists</div>
+                    <div class="solution-step">2. Verify database permissions</div>
+                    <div class="solution-step">3. Restore from backup:</div>
+                    <div class="command-block">copy backend\network_backup.db backend\network.db</div>
+                    <div class="solution-step">4. Restart backend</div>
+                </div>
+            </div>
+
+            <!-- Problem 5 -->
+            <div class="trouble-card">
+                <div class="trouble-header">
+                    <h3>🌐 Live Server Issues</h3>
+                </div>
+                <div class="trouble-content">
+                    <div class="symptom">Symptom: HTML not loading properly</div>
+                    <div class="solution-step">1. Install Live Server extension</div>
+                    <div class="solution-step">2. Right-click → Open with Live Server</div>
+                    <div class="solution-step">3. Check port 5500 is free</div>
+                    <div class="solution-step">4. Or open directly:</div>
+                    <div class="command-block">file:///C:/path/to/dashboard.html</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup & Recovery -->
+        <h2 class="section-title">💾 Backup & Recovery</h2>
+        
+        <div class="backup-section">
+            <div class="backup-grid">
+                <div class="backup-item">
+                    <h4>📁 Database Backup</h4>
+                    <div class="command-block">copy backend\network.db backend\network_backup.db</div>
+                    <p style="color:#94a3b8; margin-top:10px;">⏱️ Frequency: Daily</p>
+                </div>
+                
+                <div class="backup-item">
+                    <h4>🔄 Recovery Steps</h4>
+                    <div class="command-block">
+                        1. Stop backend<br>
+                        2. copy backup.db network.db<br>
+                        3. Restart backend
+                    </div>
+                </div>
+                
+                <div class="backup-item">
+                    <h4>📊 Auto-backup Schedule</h4>
+                    <div class="command-block">
+                        # Add to cron/task scheduler<br>
+                        0 0 * * * copy network.db backup/$(date).db
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLA & Performance -->
+        <h2 class="section-title">⏱️ Service Level Agreements</h2>
+        
+        <div class="sla-section">
+            <div class="sla-grid">
+                <div class="sla-item">
+                    <div class="sla-value">99.9%</div>
+                    <div class="sla-label">System Uptime</div>
+                </div>
+                <div class="sla-item">
+                    <div class="sla-value">1 min</div>
+                    <div class="sla-label">Critical Response</div>
+                </div>
+                <div class="sla-item">
+                    <div class="sla-value">15 min</div>
+                    <div class="sla-label">Issue Resolution</div>
+                </div>
+            </div>
+            <div style="margin-top:20px; text-align:center; color:#94a3b8;">
+                <strong style="color:#60a5fa;">Support Hours:</strong> 24/7 - 365 days
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-info">
+                <strong>📝 Last Updated:</strong> February 13, 2026<br>
+                <strong>👥 Maintained by:</strong> Network Operations Team<br>
+                <strong>📞 Support Contact:</strong> ops@networkguardian.com
+            </div>
+            <div class="version-badge">
+                ⚡ Version 2.0 | Runbook v1
+            </div>
+        </div>
+    </div>
+</body>
+</html>
