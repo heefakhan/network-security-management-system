@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Playbook - Campus Network Guardian</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background: #0a0c10;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            background: #0f172a;
+            padding: 15px 30px;
+            border-bottom: 2px solid #2563eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-brand .icon {
+            font-size: 28px;
+        }
+        
+        .nav-brand .title {
+            color: #60a5fa;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+        
+        .nav-links a:hover {
+            background: #1e293b;
+            color: #60a5fa;
+        }
+        
+        .nav-links a.active {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Section */
+        .playbook-header {
+            background: #111827;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid #1e293b;
+            text-align: center;
+        }
+        
+        .playbook-header h1 {
+            color: #60a5fa;
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+        
+        .playbook-header p {
+            color: #94a3b8;
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: #111827;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            text-align: center;
+        }
+        
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .label {
+            color: #94a3b8;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Playbook Sections */
+        .section-title {
+            color: #60a5fa;
+            font-size: 28px;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2563eb;
+        }
+        
+        .playbook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .playbook-card {
+            background: #111827;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .playbook-card:hover {
+            transform: translateY(-5px);
+            border-color: #2563eb;
+            box-shadow: 0 8px 25px rgba(37,99,235,0.2);
+        }
+        
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header.critical { background: rgba(239,68,68,0.1); }
+        .card-header.high { background: rgba(245,158,11,0.1); }
+        .card-header.medium { background: rgba(245,158,11,0.05); }
+        .card-header.low { background: rgba(16,185,129,0.1); }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        
+        .severity-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .severity-badge.critical { background: #ef4444; color: white; }
+        .severity-badge.high { background: #f59e0b; color: white; }
+        .severity-badge.medium { background: #f59e0b; color: white; }
+        .severity-badge.low { background: #10b981; color: white; }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .incident-desc {
+            color: #94a3b8;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .response-steps {
+            list-style: none;
+            margin: 15px 0;
+        }
+        
+        .response-steps li {
+            padding: 10px 0;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            gap: 10px;
+            color: #cbd5e1;
+        }
+        
+        .response-steps li:last-child {
+            border-bottom: none;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        
+        .command-block {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            color: #10b981;
+            margin: 10px 0;
+            border: 1px solid #1e293b;
+        }
+        
+        /* Matrix Table */
+        .matrix-table {
+            background: #111827;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            border: 1px solid #1e293b;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #1e293b;
+            color: #60a5fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #1e293b;
+            color: #94a3b8;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Quick Reference */
+        .quick-ref {
+            background: #111827;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            border: 1px solid #1e293b;
+        }
+        
+        .ref-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .ref-item {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .ref-item code {
+            display: block;
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 4px;
+            color: #10b981;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        
+        /* Escalation Section */
+        .escalation-section {
+            background: #111827;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            border: 1px solid #1e293b;
+        }
+        
+        .escalation-level {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            border-left: 3px solid;
+            margin: 15px 0;
+            background: #1e293b;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .level-1 { border-left-color: #10b981; }
+        .level-2 { border-left-color: #f59e0b; }
+        .level-3 { border-left-color: #ef4444; }
+        
+        /* Footer */
+        .footer {
+            background: #111827;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 50px;
+            border: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .footer-info {
+            color: #94a3b8;
+        }
+        
+        .footer-info strong {
+            color: #60a5fa;
+        }
+        
+        .update-badge {
+            background: #1e293b;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #60a5fa;
+            border: 1px solid #2563eb;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="nav-brand">
+            <span class="icon">🛡️</span>
+            <span class="title">Campus Network Guardian</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">🏠 Home</a>
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="playbook.html" class="active">📚 Playbook</a>
+            <a href="runbook.html">📘 Runbook</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="playbook-header">
+            <h1>📚 Security Incident Response Playbook</h1>
+            <p>Standard operating procedures for network security incidents. Follow these steps to ensure quick and effective response.</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number">4</div>
+                <div class="label">Playbooks</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">15m</div>
+                <div class="label">Avg Response</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">99.9%</div>
+                <div class="label">Success Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">24/7</div>
+                <div class="label">Coverage</div>
+            </div>
+        </div>
+
+        <!-- Incident Playbooks -->
+        <h2 class="section-title">🚨 Incident Response Playbooks</h2>
+        
+        <div class="playbook-grid">
+            <!-- DDoS Attack -->
+            <div class="playbook-card">
+                <div class="card-header critical">
+                    <span class="card-title">DDoS Attack</span>
+                    <span class="severity-badge critical">CRITICAL</span>
+                </div>
+                <div class="card-body">
+                    <div class="incident-desc">
+                        Multiple devices showing "under_attack" status with high threat level. Network traffic spikes detected.
+                    </div>
+                    <strong style="color:#60a5fa;">Response Steps:</strong>
+                    <ul class="response-steps">
+                        <li><span class="step-number">1</span> <strong>IMMEDIATE:</strong> Identify target device from dashboard</li>
+                        <li><span class="step-number">2</span> <strong>BLOCK:</strong> Click "Block Device" button</li>
+                        <li class="command-block">→ POST /api/devices/{id}/block</li>
+                        <li><span class="step-number">3</span> <strong>VERIFY:</strong> Status changes to "BLOCKED"</li>
+                        <li><span class="step-number">4</span> <strong>MONITOR:</strong> Watch traffic graph for 5 minutes</li>
+                        <li><span class="step-number">5</span> <strong>RESOLVE:</strong> Click "Unblock Device" after attack stops</li>
+                    </ul>
+                    <div style="margin-top:15px; padding:10px; background:#1e293b; border-radius:6px;">
+                        <strong style="color:#ef4444;">⏱️ SLA:</strong> Respond within 1 minute
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unauthorized Access -->
+            <div class="playbook-card">
+                <div class="card-header high">
+                    <span class="card-title">Unauthorized Access</span>
+                    <span class="severity-badge high">HIGH</span>
+                </div>
+                <div class="card-body">
+                    <div class="incident-desc">
+                        Alert shows "Unauthorized Access Attempt" on firewall or critical systems.
+                    </div>
+                    <strong style="color:#60a5fa;">Response Steps:</strong>
+                    <ul class="response-steps">
+                        <li><span class="step-number">1</span> <strong>INVESTIGATE:</strong> Check alert details in Alerts section</li>
+                        <li><span class="step-number">2</span> <strong>ANALYZE:</strong> Review threat level and source IP</li>
+                        <li><span class="step-number">3</span> <strong>BLOCK:</strong> If malicious, block the device</li>
+                        <li class="command-block">→ POST /api/devices/{id}/block</li>
+                        <li><span class="step-number">4</span> <strong>RESOLVE:</strong> Click "Resolve" on alert</li>
+                    </ul>
+                    <div style="margin-top:15px; padding:10px; background:#1e293b; border-radius:6px;">
+                        <strong style="color:#f59e0b;">⏱️ SLA:</strong> Respond within 5 minutes
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Change -->
+            <div class="playbook-card">
+                <div class="card-header medium">
+                    <span class="card-title">Config Change</span>
+                    <span class="severity-badge medium">MEDIUM</span>
+                </div>
+                <div class="card-body">
+                    <div class="incident-desc">
+                        Alert shows "Configuration Changed" on router, firewall, or switches.
+                    </div>
+                    <strong style="color:#60a5fa;">Response Steps:</strong>
+                    <ul class="response-steps">
+                        <li><span class="step-number">1</span> <strong>VERIFY:</strong> Check if change was authorized</li>
+                        <li><span class="step-number">2</span> <strong>AUDIT:</strong> Review change logs</li>
+                        <li><span class="step-number">3</span> <strong>ROLLBACK:</strong> If unauthorized, block device</li>
+                        <li><span class="step-number">4</span> <strong>RESOLVE:</strong> Update alert status</li>
+                    </ul>
+                    <div style="margin-top:15px; padding:10px; background:#1e293b; border-radius:6px;">
+                        <strong style="color:#f59e0b;">⏱️ SLA:</strong> Respond within 15 minutes
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brute Force Attack -->
+            <div class="playbook-card">
+                <div class="card-header high">
+                    <span class="card-title">Brute Force Attack</span>
+                    <span class="severity-badge high">HIGH</span>
+                </div>
+                <div class="card-body">
+                    <div class="incident-desc">
+                        Multiple failed login attempts detected on servers.
+                    </div>
+                    <strong style="color:#60a5fa;">Response Steps:</strong>
+                    <ul class="response-steps">
+                        <li><span class="step-number">1</span> <strong>IDENTIFY:</strong> Locate target device</li>
+                        <li><span class="step-number">2</span> <strong>BLOCK:</strong> Immediately block the device</li>
+                        <li class="command-block">→ POST /api/devices/{id}/block</li>
+                        <li><span class="step-number">3</span> <strong>INVESTIGATE:</strong> Review access logs</li>
+                        <li><span class="step-number">4</span> <strong>UNBLOCK:</strong> After securing, unblock if safe</li>
+                    </ul>
+                    <div style="margin-top:15px; padding:10px; background:#1e293b; border-radius:6px;">
+                        <strong style="color:#f59e0b;">⏱️ SLA:</strong> Respond within 5 minutes
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Severity Matrix -->
+        <h2 class="section-title">📊 Incident Severity Matrix</h2>
+        
+        <div class="matrix-table">
+            <table>
+                <tr>
+                    <th>Severity</th>
+                    <th>Color</th>
+                    <th>Response Time</th>
+                    <th>Action Required</th>
+                </tr>
+                <tr>
+                    <td><strong style="color:#ef4444;">CRITICAL</strong></td>
+                    <td>🔴 Red</td>
+                    <td>Immediate (0-1 min)</td>
+                    <td>Block device immediately, escalate</td>
+                </tr>
+                <tr>
+                    <td><strong style="color:#f59e0b;">HIGH</strong></td>
+                    <td>🟠 Orange</td>
+                    <td>Within 5 minutes</td>
+                    <td>Investigate and block if needed</td>
+                </tr>
+                <tr>
+                    <td><strong style="color:#f59e0b;">MEDIUM</strong></td>
+                    <td>🟡 Yellow</td>
+                    <td>Within 15 minutes</td>
+                    <td>Monitor and review</td>
+                </tr>
+                <tr>
+                    <td><strong style="color:#10b981;">LOW</strong></td>
+                    <td>🟢 Green</td>
+                    <td>Within 1 hour</td>
+                    <td>Log and track</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Quick Reference -->
+        <h2 class="section-title">🚀 Quick Reference Commands</h2>
+        
+        <div class="quick-ref">
+            <div class="ref-grid">
+                <div class="ref-item">
+                    <strong style="color:#60a5fa;">🔵 BLOCK DEVICE</strong>
+                    <code>POST /api/devices/{id}/block</code>
+                    <small style="color:#94a3b8;">Click "Block" button in dashboard</small>
+                </div>
+                <div class="ref-item">
+                    <strong style="color:#60a5fa;">🟢 UNBLOCK DEVICE</strong>
+                    <code>POST /api/devices/{id}/unblock</code>
+                    <small style="color:#94a3b8;">Click "Unblock" button</small>
+                </div>
+                <div class="ref-item">
+                    <strong style="color:#60a5fa;">✅ RESOLVE ALERT</strong>
+                    <code>POST /api/alerts/{id}/resolve</code>
+                    <small style="color:#94a3b8;">Click "Resolve" button</small>
+                </div>
+                <div class="ref-item">
+                    <strong style="color:#60a5fa;">📊 VIEW STATS</strong>
+                    <code>GET /api/stats</code>
+                    <small style="color:#94a3b8;">Auto-updates on dashboard</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Escalation Procedure -->
+        <h2 class="section-title">📈 Escalation Procedure</h2>
+        
+        <div class="escalation-section">
+            <div class="escalation-level level-1">
+                <div style="min-width:100px;">
+                    <strong style="color:#10b981;">LEVEL 1</strong>
+                </div>
+                <div>
+                    <strong style="color:#60a5fa;">Admin Response</strong>
+                    <p style="color:#94a3b8; margin-top:5px;">Initial response using dashboard. Block/unblock devices, resolve alerts.</p>
+                </div>
+            </div>
+            
+            <div class="escalation-level level-2">
+                <div style="min-width:100px;">
+                    <strong style="color:#f59e0b;">LEVEL 2</strong>
+                </div>
+                <div>
+                    <strong style="color:#60a5fa;">Security Team Lead</strong>
+                    <p style="color:#94a3b8; margin-top:5px;">If 3+ critical incidents in 1 hour, escalate to team lead for investigation.</p>
+                </div>
+            </div>
+            
+            <div class="escalation-level level-3">
+                <div style="min-width:100px;">
+                    <strong style="color:#ef4444;">LEVEL 3</strong>
+                </div>
+                <div>
+                    <strong style="color:#60a5fa;">Disaster Recovery</strong>
+                    <p style="color:#94a3b8; margin-top:5px;">If network-wide attack, activate disaster recovery plan and contact management.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-info">
+                <strong>📝 Last Updated:</strong> February 13, 2026<br>
+                <strong>👥 Responsible Team:</strong> Network Security Team<br>
+                <strong>📞 Emergency Contact:</strong> +91 XXXXX XXXXX
+            </div>
+            <div class="update-badge">
+                ⚡ Version 2.0
+            </div>
+        </div>
+    </div>
+</body>
+</html>
