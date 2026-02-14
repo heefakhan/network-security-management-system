@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Network Guardian</title>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: #0a0c10;
+            color: #e0e0e0;
+        }
+        
+        .navbar {
+            background: #0f172a;
+            color: #60a5fa;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2563eb;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 15px;
+            margin: 0 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        .nav-links a.active {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .toggle-btn {
+            background: #1e293b;
+            color: #60a5fa;
+            border: 1px solid #2563eb;
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .toggle-btn:hover {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+        
+        .stat-card {
+            background: #111827;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+        }
+        
+        .stat-card h3 {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        
+        .graph-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 0 20px 20px;
+        }
+        
+        .graph-card {
+            background: #111827;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+            position: relative;
+        }
+        
+        .graph-card h3 {
+            color: #60a5fa;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .graph-card canvas {
+            width: 100%;
+            height: 180px;
+        }
+        
+        .graph-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #1e293b;
+        }
+        
+        .graph-status.on { color: #10b981; }
+        .graph-status.off { color: #ef4444; }
+        
+        .section {
+            padding: 0 20px 20px;
+        }
+        
+        .section h2 {
+            color: #60a5fa;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 5px;
+        }
+        
+        .devices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .device-card {
+            background: #111827;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+            border-left: 3px solid #2563eb;
+        }
+        
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .device-name {
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .status-online {
+            background: rgba(16,185,129,0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+        
+        .status-offline {
+            background: rgba(100,116,139,0.2);
+            color: #94a3b8;
+            border: 1px solid #94a3b8;
+        }
+        
+        .status-attack {
+            background: rgba(239,68,68,0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+        
+        .device-details {
+            color: #94a3b8;
+            font-size: 12px;
+            margin: 8px 0;
+        }
+        
+        .threat-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .threat-high {
+            background: rgba(239,68,68,0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        
+        .threat-medium {
+            background: rgba(245,158,11,0.2);
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+        
+        .threat-low {
+            background: rgba(16,185,129,0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+        
+        .block-btn, .unblock-btn {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .block-btn {
+            background: #1e293b;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        
+        .block-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .unblock-btn {
+            background: #1e293b;
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+        
+        .unblock-btn:hover {
+            background: #10b981;
+            color: white;
+        }
+        
+        .resolve-btn {
+            padding: 3px 10px;
+            background: #1e293b;
+            color: #10b981;
+            border: 1px solid #10b981;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .resolve-btn:hover {
+            background: #10b981;
+            color: white;
+        }
+        
+        .alerts-list {
+            display: grid;
+            gap: 8px;
+        }
+        
+        .alert-card {
+            background: #111827;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .alert-card.high { border-left-color: #ef4444; }
+        .alert-card.medium { border-left-color: #f59e0b; }
+        .alert-card.low { border-left-color: #10b981; }
+        
+        .alert-info {
+            flex: 1;
+        }
+        
+        .alert-device {
+            font-weight: bold;
+            color: #60a5fa;
+            font-size: 13px;
+        }
+        
+        .alert-message {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        
+        .alert-time {
+            color: #64748b;
+            font-size: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #60a5fa;
+        }
+        
+        .no-graph {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            background: #111827;
+            border-radius: 8px;
+            border: 1px dashed #1e293b;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="navbar">
+    <div class="logo">🛡️ Network Guardian</div>
+    <div class="nav-links">
+        <a onclick="showSection('dashboard')" id="link-dashboard" class="active">Dashboard</a>
+        <a onclick="showSection('devices')" id="link-devices">Devices</a>
+        <a onclick="showSection('alerts')" id="link-alerts">Alerts</a>
+        <!-- NEW: Quick access to other pages -->
+        <a href="index.html" style="color:#94a3b8;">🏠 Home</a>
+        <a href="playbook.html" target="_blank" style="color:#94a3b8;">📚 Playbook</a>
+        <a href="runbook.html" target="_blank" style="color:#94a3b8;">📘 Runbook</a>
+    </div>
+    <div>
+        <button class="toggle-btn" onclick="toggleGraphs()" id="graphToggleBtn">
+            🔴 GRAPH OFF
+        </button>
+    </div>
+</div>
+    <div id="dashboard-section">
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Total Devices</h3>
+                <p id="totalDevices">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Active Threats</h3>
+                <p id="activeThreats">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Online</h3>
+                <p id="onlineDevices">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Offline/Blocked</h3>
+                <p id="offlineDevices">0</p>
+            </div>
+        </div>
+
+        <!-- GRAPH SECTION - DYNAMIC TOGGLE -->
+        <div id="graphSection">
+            <div class="graph-container">
+                <div class="graph-card">
+                    <h3>
+                        📊 Network Traffic
+                        <span id="trafficStatus" class="graph-status off">OFF</span>
+                    </h3>
+                    <canvas id="trafficChart"></canvas>
+                </div>
+                <div class="graph-card">
+                    <h3>
+                        🎯 Threat Levels
+                        <span id="threatStatus" class="graph-status off">OFF</span>
+                    </h3>
+                    <canvas id="threatChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📱 Recent Devices</h2>
+            <div id="dashboardDevices" class="devices-grid">
+                <div class="loading">Loading devices...</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚠️ Recent Alerts</h2>
+            <div id="dashboardAlerts" class="alerts-list">
+                <div class="loading">Loading alerts...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="devices-section" style="display:none">
+        <div class="section">
+            <h2>📱 All Devices</h2>
+            <div id="allDevices" class="devices-grid"></div>
+        </div>
+    </div>
+
+    <div id="alerts-section" style="display:none">
+        <div class="section">
+            <h2>⚠️ All Alerts</h2>
+            <div id="allAlerts" class="alerts-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIG
+        // ============================================
+        const API_URL = 'http://localhost:8001';
+        
+        let currentDevices = [];
+        let currentAlerts = [];
+        let trafficChart, threatChart;
+        let graphsEnabled = false;  // DEFAULT OFF
+
+        // ============================================
+        // TOGGLE GRAPHS ON/OFF
+        // ============================================
+        function toggleGraphs() {
+            graphsEnabled = !graphsEnabled;
+            
+            const btn = document.getElementById('graphToggleBtn');
+            const trafficStatus = document.getElementById('trafficStatus');
+            const threatStatus = document.getElementById('threatStatus');
+            
+            if (graphsEnabled) {
+                btn.innerHTML = '🟢 GRAPH ON';
+                btn.style.color = '#10b981';
+                trafficStatus.innerHTML = 'ON';
+                trafficStatus.className = 'graph-status on';
+                threatStatus.innerHTML = 'ON';
+                threatStatus.className = 'graph-status on';
+                createGraphs();  // Create graphs
+            } else {
+                btn.innerHTML = '🔴 GRAPH OFF';
+                btn.style.color = '#ef4444';
+                trafficStatus.innerHTML = 'OFF';
+                trafficStatus.className = 'graph-status off';
+                threatStatus.innerHTML = 'OFF';
+                threatStatus.className = 'graph-status off';
+                destroyGraphs();  // Remove graphs
+            }
+        }
+
+        // ============================================
+        // DESTROY GRAPHS
+        // ============================================
+        function destroyGraphs() {
+            if (trafficChart) {
+                trafficChart.destroy();
+                trafficChart = null;
+            }
+            if (threatChart) {
+                threatChart.destroy();
+                threatChart = null;
+            }
+            
+            // Clear canvases
+            document.getElementById('trafficChart').getContext('2d').clearRect(0, 0, 400, 200);
+            document.getElementById('threatChart').getContext('2d').clearRect(0, 0, 400, 200);
+        }
+
+        // ============================================
+        // CREATE GRAPHS (STATIC)
+        // ============================================
+        function createGraphs() {
+            if (!graphsEnabled) return;
+            
+            try {
+                // Traffic Chart
+                const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+                if (trafficChart) trafficChart.destroy();
+                
+                trafficChart = new Chart(trafficCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM'],
+                        datasets: [{
+                            label: 'Traffic',
+                            data: [45, 78, 92, 88, 76, 55],
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37,99,235,0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+                
+                // Threat Chart
+                const threatCtx = document.getElementById('threatChart').getContext('2d');
+                if (threatChart) threatChart.destroy();
+                
+                threatChart = new Chart(threatCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['High', 'Medium', 'Low'],
+                        datasets: [{
+                            data: [2, 3, 5],
+                            backgroundColor: ['#ef4444', '#f59e0b', '#10b981']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        plugins: { legend: { position: 'bottom' } },
+                        cutout: '60%'
+                    }
+                });
+                
+            } catch(e) {
+                console.log('Chart error:', e);
+            }
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function showSection(section) {
+            document.getElementById('dashboard-section').style.display = 'none';
+            document.getElementById('devices-section').style.display = 'none';
+            document.getElementById('alerts-section').style.display = 'none';
+            
+            document.getElementById('link-dashboard').classList.remove('active');
+            document.getElementById('link-devices').classList.remove('active');
+            document.getElementById('link-alerts').classList.remove('active');
+            
+            if (section === 'dashboard') {
+                document.getElementById('dashboard-section').style.display = 'block';
+                document.getElementById('link-dashboard').classList.add('active');
+                displayDashboardDevices();
+                displayDashboardAlerts();
+            } else if (section === 'devices') {
+                document.getElementById('devices-section').style.display = 'block';
+                document.getElementById('link-devices').classList.add('active');
+                displayAllDevices();
+            } else {
+                document.getElementById('alerts-section').style.display = 'block';
+                document.getElementById('link-alerts').classList.add('active');
+                displayAllAlerts();
+            }
+        }
+
+        // ============================================
+        // BLOCK/UNBLOCK FUNCTIONS
+        // ============================================
+        async function blockDevice(id, name) {
+            if (!confirm(`Block ${name}?`)) return;
+            try {
+                await fetch(`${API_URL}/api/devices/${id}/block`, {method: 'POST'});
+                alert('✅ Blocked');
+                loadData();
+            } catch(e) {
+                alert('❌ Error');
+            }
+        }
+
+        async function unblockDevice(id, name) {
+            if (!confirm(`Unblock ${name}?`)) return;
+            try {
+                await fetch(`${API_URL}/api/devices/${id}/unblock`, {method: 'POST'});
+                alert('✅ Unblocked');
+                loadData();
+            } catch(e) {
+                alert('❌ Error');
+            }
+        }
+
+        async function resolveAlert(id) {
+            try {
+                await fetch(`${API_URL}/api/alerts/${id}/resolve`, {method: 'POST'});
+                loadData();
+            } catch(e) {
+                alert('❌ Error');
+            }
+        }
+
+
+        // ============================================
+        // LOAD DATA
+        // ============================================
+        async function loadData() {
+            try {
+                const dRes = await fetch(`${API_URL}/api/devices`);
+                currentDevices = await dRes.json();
+                
+                const aRes = await fetch(`${API_URL}/api/alerts`);
+                currentAlerts = await aRes.json();
+                
+                updateStats();
+                displayDashboardDevices();
+                displayDashboardAlerts();
+                
+            } catch(e) {
+                console.log('Backend error:', e);
+            }
+        }
+
+        function updateStats() {
+            const total = currentDevices.length;
+            const threats = currentDevices.filter(d => d.threat_level === 'high').length;
+            const online = currentDevices.filter(d => d.status === 'online').length;
+            const offline = currentDevices.filter(d => d.status === 'offline' || d.status === 'blocked' || d.status === 'under_attack').length;
+            
+            document.getElementById('totalDevices').textContent = total;
+            document.getElementById('activeThreats').textContent = threats;
+            document.getElementById('onlineDevices').textContent = online;
+            document.getElementById('offlineDevices').textContent = offline;
+        }
+
+        // ============================================
+        // DISPLAY FUNCTIONS
+        // ============================================
+        function getDeviceHTML(device) {
+            let statusClass = 'status-online';
+            if (device.status === 'offline') statusClass = 'status-offline';
+            if (device.status === 'blocked') statusClass = 'status-offline';
+            if (device.status === 'under_attack') statusClass = 'status-attack';
+            
+            let statusText = device.status;
+            if (device.status === 'under_attack') statusText = 'ATTACK';
+            if (device.status === 'blocked') statusText = 'BLOCKED';
+            
+            const actionBtn = device.status === 'blocked'
+                ? `<button class="unblock-btn" onclick="unblockDevice(${device.id}, '${device.name}')">🔓 UNBLOCK</button>`
+                : `<button class="block-btn" onclick="blockDevice(${device.id}, '${device.name}')">🚫 BLOCK</button>`;
+            
+            return `
+                <div class="device-card">
+                    <div class="device-header">
+                        <span class="device-name">${device.name}</span>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="device-details">
+                        📌 ${device.ip}<br>
+                        ⏱️ ${device.last_seen}
+                    </div>
+                    <div style="margin:5px 0">
+                        <span class="threat-badge threat-${device.threat_level}">${device.threat_level}</span>
+                    </div>
+                    ${actionBtn}
+                </div>
+            `;
+        }
+
+        function displayDashboardDevices() {
+            let html = '';
+            currentDevices.slice(0, 3).forEach(d => html += getDeviceHTML(d));
+            document.getElementById('dashboardDevices').innerHTML = html || '<div class="loading">No devices</div>';
+        }
+
+        function displayAllDevices() {
+            let html = '';
+            currentDevices.forEach(d => html += getDeviceHTML(d));
+            document.getElementById('allDevices').innerHTML = html || '<div class="loading">No devices</div>';
+        }
+
+        function displayDashboardAlerts() {
+            let html = '';
+            currentAlerts.slice(0, 3).forEach(a => {
+                html += `
+                    <div class="alert-card ${a.severity}">
+                        <div class="alert-info">
+                            <div class="alert-device">${a.device_name}</div>
+                            <div class="alert-message">${a.message}</div>
+                            <div class="alert-time">${a.timestamp}</div>
+                        </div>
+                        <button class="resolve-btn" onclick="resolveAlert(${a.id})">✓</button>
+                    </div>
+                `;
+            });
+            document.getElementById('dashboardAlerts').innerHTML = html || '<div class="loading">No alerts</div>';
+        }
+
+        function displayAllAlerts() {
+            let html = '';
+            currentAlerts.forEach(a => {
+                html += `
+                    <div class="alert-card ${a.severity}">
+                        <div class="alert-info">
+                            <div class="alert-device">${a.device_name}</div>
+                            <div class="alert-message">${a.message}</div>
+                            <div class="alert-time">${a.timestamp}</div>
+                        </div>
+                        <button class="resolve-btn" onclick="resolveAlert(${a.id})">✓</button>
+                    </div>
+                `;
+            });
+            document.getElementById('allAlerts').innerHTML = html || '<div class="loading">No alerts</div>';
+        }
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        // Load data immediately
+        loadData();
+        
+        // Refresh every 10 seconds
+        setInterval(loadData, 10000);
+    </script>
+</body>
+</html>
