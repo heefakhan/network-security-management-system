@@ -1,0 +1,38 @@
+Problem Statement
+Campus networks face increasing cyber threats but lack centralized monitoring. Existing solutions are either too 
+expensive (₹2-30 lakhs/year) or too complex. Manual management leads to errors, delayed response, and security breaches.
+
+Solution
+A free, open-source security management system with:
+- Real-time device monitoring
+- One-click Block/UNBLOCK (unique!)
+- Graph ON/OFF toggle (unique!)
+- Instant alerts with resolve option
+- Docker support for easy deployment
+
+100% free, open-source, and aligned with UN SDG Goals 9 & 11.
+
+Tech Stack
+- Backend: FastAPI (Python)
+- Frontend: HTML/CSS/JavaScript
+- Database: SQLite
+- Charts: Chart.js
+- Deployment: Docker
+
+Features
+✅ Real-time device monitoring
+✅ One-click Block/Unblock
+✅ Live alerts with resolve option
+✅ Graph ON/OFF toggle (UNIQUE!)
+✅ Dark theme UI
+✅ Auto refresh (10 seconds)
+
+SDG Goals
+- Goal 9: Industry, Innovation and Infrastructure
+- Goal 11: Sustainable Cities and Communities
+
+How to Run
+
+git clone - https://github.com/heefakhan/network-security-management-system.git
+cd campus-network-guardian
+docker-compose up
