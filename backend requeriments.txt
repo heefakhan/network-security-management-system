@@ -1,0 +1,152 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import sqlite3
+
+app = FastAPI(title="Campus Network Guardian")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Database connection
+def get_db():
+    conn = sqlite3.connect('network.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.get("/")
+def root():
+    return {
+        "message": "Campus Network Guardian API",
+        "status": "running",
+        "endpoints": {
+            "devices": "/api/devices",
+            "alerts": "/api/alerts",
+            "docs": "/docs"
+        }
+    }
+
+@app.get("/api/devices")
+def get_devices():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM devices")
+    devices = cursor.fetchall()
+    conn.close()
+    
+    result = []
+    for device in devices:
+        result.append({
+            "id": device["id"],
+            "name": device["name"],
+            "ip": device["ip"],
+            "status": device["status"],
+            "threat_level": device["threat_level"],
+            "last_seen": device["last_seen"]
+        })
+    return result
+
+@app.get("/api/alerts")
+def get_alerts():
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM alerts WHERE is_resolved = 0 ORDER BY id DESC")
+    alerts = cursor.fetchall()
+    conn.close()
+    
+    result = []
+    for alert in alerts:
+        result.append({
+            "id": alert["id"],
+            "device_name": alert["device_name"],
+            "message": alert["message"],
+            "severity": alert["severity"],
+            "timestamp": alert["timestamp"],
+            "is_resolved": bool(alert["is_resolved"])
+        })
+    return result
+
+@app.post("/api/alerts/{alert_id}/resolve")
+def resolve_alert(alert_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE alerts SET is_resolved = 1 WHERE id = ?", (alert_id,))
+    conn.commit()
+    conn.close()
+    return {"message": "✅ Alert resolved successfully"}
+
+@app.get("/api/stats")
+def get_stats():
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Total devices
+    cursor.execute("SELECT COUNT(*) as count FROM devices")
+    total_devices = cursor.fetchone()["count"]
+    
+    # Active threats (high severity alerts)
+    cursor.execute("SELECT COUNT(*) as count FROM alerts WHERE severity = 'high' AND is_resolved = 0")
+    active_threats = cursor.fetchone()["count"]
+    
+    # Online devices
+    cursor.execute("SELECT COUNT(*) as count FROM devices WHERE status = 'online'")
+    online = cursor.fetchone()["count"]
+    
+    # Offline/Attack devices
+    cursor.execute("SELECT COUNT(*) as count FROM devices WHERE status IN ('offline', 'under_attack')")
+    offline = cursor.fetchone()["count"]
+    
+    conn.close()
+    
+    return {
+        "total_devices": total_devices,
+        "active_threats": active_threats,
+        "online": online,
+        "offline": offline
+    }
+@app.post("/api/devices/{device_id}/block")
+def block_device(device_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE devices SET status = 'blocked', threat_level = 'high' WHERE id = ?", 
+        (device_id,)
+    )
+    conn.commit()
+    
+    # Create alert for block action
+    cursor.execute('''
+        INSERT INTO alerts (device_name, message, severity, timestamp, is_resolved)
+        SELECT name, 'Device blocked by admin', 'high', datetime('now', 'localtime'), 0
+        FROM devices WHERE id = ?
+    ''', (device_id,))
+    conn.commit()
+    conn.close()
+    
+    return {"message": f"Device {device_id} blocked successfully"}
+@app.post("/api/devices/{device_id}/unblock")
+def unblock_device(device_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Update device status back to online
+    cursor.execute(
+        "UPDATE devices SET status = 'online', threat_level = 'low' WHERE id = ?", 
+        (device_id,)
+    )
+    conn.commit()
+    
+    # Create alert for unblock action
+    cursor.execute('''
+        INSERT INTO alerts (device_name, message, severity, timestamp, is_resolved)
+        SELECT name, 'Device unblocked by admin', 'low', datetime('now', 'localtime'), 0
+        FROM devices WHERE id = ?
+    ''', (device_id,))
+    
+    conn.commit()
+    conn.close()
+    
+    return {"message": f"Device {device_id} unblocked successfully"}
