@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Network Guardian - Main Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background: #0a0c10;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0a0c10 0%, #0f172a 100%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0% { text-shadow: 0 0 10px #2563eb; }
+            50% { text-shadow: 0 0 30px #2563eb, 0 0 50px #2563eb; }
+            100% { text-shadow: 0 0 10px #2563eb; }
+        }
+        
+        h1 {
+            font-size: 48px;
+            color: #60a5fa;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .tagline {
+            font-size: 18px;
+            color: #94a3b8;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+        
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .card {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: #2563eb;
+            box-shadow: 0 8px 30px rgba(37,99,235,0.3);
+        }
+        
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .card h3 {
+            color: #60a5fa;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .card p {
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .card .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        
+        .badge.dashboard { background: #2563eb; color: white; }
+        .badge.playbook { background: #10b981; color: white; }
+        .badge.runbook { background: #f59e0b; color: white; }
+        .badge.docs { background: #8b5cf6; color: white; }
+        
+        .status-bar {
+            margin-top: 60px;
+            padding: 20px;
+            background: #111827;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-dot.online { background: #10b981; box-shadow: 0 0 10px #10b981; }
+        .status-dot.offline { background: #ef4444; }
+        
+        .footer {
+            margin-top: 40px;
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 900px) {
+            .card-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🛡️</div>
+        <h1>Campus Network Guardian</h1>
+        <div class="tagline">Secure • Monitor • Protect</div>
+        
+        <div class="card-container">
+            <!-- DASHBOARD CARD -->
+            <div class="card" onclick="window.location.href='dashboard.html'">
+                <div class="card-icon">📊</div>
+                <h3>Dashboard</h3>
+                <p>Real-time network monitoring, live graphs, device status, and threat detection</p>
+                <span class="badge dashboard">LIVE MONITORING</span>
+            </div>
+            
+            <!-- DEVICES CARD (Direct to devices section) -->
+            <div class="card" onclick="window.location.href='dashboard.html#devices'">
+                <div class="card-icon">🖥️</div>
+                <h3>Devices</h3>
+                <p>View all network devices, block/unblock, check status and threat levels</p>
+                <span class="badge dashboard">DEVICE MANAGEMENT</span>
+            </div>
+            
+            <!-- PLAYBOOK CARD -->
+            <div class="card" onclick="window.location.href='playbook.html'">
+                <div class="card-icon">📚</div>
+                <h3>Security Playbook</h3>
+                <p>Incident response procedures, DDoS handling, unauthorized access protocols</p>
+                <span class="badge playbook">SECURITY GUIDE</span>
+            </div>
+            
+            <!-- RUNBOOK CARD -->
+            <div class="card" onclick="window.location.href='runbook.html'">
+                <div class="card-icon">📘</div>
+                <h3>System Runbook</h3>
+                <p>Setup guide, troubleshooting, backup procedures, operational manual</p>
+                <span class="badge runbook">OPERATIONS</span>
+            </div>
+        </div>
+        
+        <!-- SYSTEM STATUS -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot online"></span>
+                <span>Backend: <strong style="color:#10b981;">Running</strong> (Port 8001)</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot online"></span>
+                <span>Database: <strong style="color:#10b981;">Connected</strong></span>
+            </div>
+            <div class="status-item">
+                <span>Last Updated: <strong>Just now</strong></span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 Campus Network Guardian | UN SDG Goals 9 & 11</p>
+            <p style="margin-top:5px;">⚡ Quick Access: Dashboard | Playbook | Runbook</p>
+        </div>
+    </div>
+    
+    <script>
+        // Check backend status
+        async function checkBackend() {
+            try {
+                const response = await fetch('http://localhost:8001/api/devices');
+                if(response.ok) {
+                    document.querySelector('.status-dot.online').style.background = '#10b981';
+                }
+            } catch(e) {
+                document.querySelector('.status-dot.online').style.background = '#ef4444';
+            }
+        }
+        checkBackend();
+    </script>
+</body>
+</html>
